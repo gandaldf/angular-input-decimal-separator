@@ -1,7 +1,8 @@
 # angular-input-decimal-separator
-Decimal separtor for input with masking
+Decimal separtor for input with masking. 
+This is working based on the current culture used in the application.
 
-This module will automatically will do decimal separtor based on the current culture while user typing. 
+This module automatically will do decimal separtor based on the current culture while user typing. 
 
 Include the following module in your app.
 ```
