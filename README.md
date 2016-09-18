@@ -17,8 +17,9 @@ How to use?
 ```
 1. decimal-max used to set the maximum validation for the input.
 2. decimal-min used to set the manimum validation for the input.
-3. input-decimal-separator="3" - 3 is the number of decimal separator. 3 is optional parameter. 2 is the default decimal separator if anything is not specified.
-4. Support negative number.
+3. input-decimal-separator="3": 3 is the number of decimal separator, 3 is optional parameter; 2 is the default decimal separator if anything is not specified.
+4. support negative number.
+5. optional delimiters tag: decimal-delimiter="," and thousands-delimiter="." if not specified $locale variables will be used.
 
 
 
