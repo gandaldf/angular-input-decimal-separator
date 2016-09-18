@@ -1,123 +1,140 @@
 angular.module('ng-inputdecimalseparator', [])
     .directive('inputDecimalSeparator', [
-    '$locale',
-    function ($locale, undefined) {
-        return {
-            restrict: 'A',
-            require: '?ngModel',
-            compile: function (_element, tAttrs) {
-                return function (scope, element, attrs, ctrl, undefined) {
-                    if (!ctrl) {
-                        return;
-                    }
+  '$locale',
+  function($locale) {
+    return {
+      restrict: 'A',
+      require: '?ngModel',
+      compile: function(element, attrs) {
+        return function(scope, element, attrs, ctrl) {
+          if (!ctrl) {
+            return;
+          }
 
-                    var decimalDelimiter = $locale.NUMBER_FORMATS.DECIMAL_SEP,
-                           thousandsDelimiter = $locale.NUMBER_FORMATS.GROUP_SEP,
-                           defaultDelimiter = ".";
-                    var decimalMax = isNaN(attrs.decimalMax) ? null : parseFloat(attrs.decimalMax);
-                    var decimalMin = isNaN(attrs.decimalMin) ? null : parseFloat(attrs.decimalMin);
-                    var noOfDecimal = null, minus = "-", isMinusExists = false;
+          var decimalDelimiter = (!attrs.decimalDelimiter) ? $locale.NUMBER_FORMATS.DECIMAL_SEP : attrs.decimalDelimiter;
+          var thousandsDelimiter = (!attrs.thousandsDelimiter) ? $locale.NUMBER_FORMATS.GROUP_SEP : attrs.thousandsDelimiter;
+          var defaultDelimiter = '.';
+          var decimalMax = isNaN(attrs.decimalMax) ? null : parseFloat(attrs.decimalMax);
+          var decimalMin = isNaN(attrs.decimalMin) ? null : parseFloat(attrs.decimalMin);
+          var noOfDecimal = null;
+          var minus = '-';
+          var isMinusExists = false;
 
-                    if (noOfDecimal || noOfDecimal != '') {
-                        noOfDecimal = isNaN(attrs.inputDecimalSeparator) ? 2 : Number(attrs.inputDecimalSeparator);
-                        noOfDecimal = Math.floor(noOfDecimal);
-                    }
+          if (noOfDecimal || noOfDecimal != '') {
+            noOfDecimal = isNaN(attrs.inputDecimalSeparator) ? 2 : Number(attrs.inputDecimalSeparator);
+            noOfDecimal = Math.floor(noOfDecimal);
+          }
 
-                    // Parser starts here...
-                    ctrl.$parsers.push(function (value) {
-                        if (!value || value === '') {
-                            return null;
-                        }
+          ctrl.$parsers.push(function(value) { // view - model
+            if (!value || value === '') {
+              return null;
+            }
 
-                        var isMinusExists = value.indexOf(minus) == 0;
+            var str = "[^0-9" + decimalDelimiter + "]";
 
-                        var str = "[^0-9" + decimalDelimiter + "]";
-                        var regularExpression = new RegExp(str, 'g');
+            var regularExpression = new RegExp(str, 'g');
 
-                        var outputValue = value.replace(regularExpression, '');
+            var isMinusExists = value.indexOf(minus) == 0;
 
-                        var tokens = outputValue.split(decimalDelimiter);
-                        tokens.splice(2, tokens.length - 2);
+            var outputValue = value.replace(regularExpression, '');
 
-                        if (noOfDecimal && tokens[1])
-                            tokens[1] = tokens[1].substring(0, noOfDecimal);
+            var tokens = outputValue.split(decimalDelimiter);
+            tokens.splice(2, tokens.length - 2);
 
-                        var result = tokens.join(decimalDelimiter);
-                        var actualNumber = tokens.join(defaultDelimiter);
+            if (noOfDecimal && tokens[1]) {
+              tokens[1] = tokens[1].substring(0, noOfDecimal);
+            }
 
-                        ctrl.$setValidity('max', true);
-                        ctrl.$setValidity('min', true);
+            var result = tokens.join(decimalDelimiter);
 
-                        if (decimalMax && Number(actualNumber) > decimalMax)
-                            ctrl.$setValidity('max', false);
+            var actualNumber = tokens.join(defaultDelimiter);
 
-                        if (decimalMin && Number(actualNumber) < decimalMin)
-                            ctrl.$setValidity('min', false);
+            ctrl.$setValidity('max', true);
+            ctrl.$setValidity('min', true);
 
-                        // apply thousand separator
-                        if (result) {
-                            tokens = result.split($locale.NUMBER_FORMATS.DECIMAL_SEP);
-                            if (tokens[0])
-                                tokens[0] = tokens[0].split(/(?=(?:...)*$)/).join($locale.NUMBER_FORMATS.GROUP_SEP);
+            if (decimalMax && Number(actualNumber) > decimalMax) {
+              ctrl.$setValidity('max', false);
+            }
 
-                            result = tokens.join($locale.NUMBER_FORMATS.DECIMAL_SEP);
-                        }
+            if (decimalMin && Number(actualNumber) < decimalMin) {
+              ctrl.$setValidity('min', false);
+            }
 
-                        if (result != value) {
-                            if (isMinusExists)
-                                result = minus + result;
-                            ctrl.$setViewValue(result);
-                            ctrl.$render();
-                        }
+            // apply thousand separator
+            if (result) {
+              tokens = result.split(decimalDelimiter);
 
-                        if (isMinusExists)
-                            actualNumber = minus + actualNumber;
-                        return actualNumber;
+              if (tokens[0]) {
+                tokens[0] = tokens[0].split(/(?=(?:...)*$)/).join(thousandsDelimiter);
+              }
 
-                    }); // end Parser
+              result = tokens.join(decimalDelimiter);
+            }
 
-                    // Formatter starts here
-                    ctrl.$formatters.push(function (value) {
+            if (isMinusExists) {
+              result = minus + result;
+              actualNumber = minus + actualNumber;
+            }
 
-                        if (!value || value === '') {
-                            return null;
-                        }
-                        var str = "[^0-9" + decimalDelimiter + "]";
-                        var regularExpression = new RegExp(str, 'g');
-                        value = value.toString();
-                        var isMinusExists = value.indexOf(minus) == 0;
-                        value = value.replace(regularExpression, '');
-                        var tokens = value.split(defaultDelimiter);
-                        tokens.splice(2, tokens.length - 2);
+            if (result != value) {
+              ctrl.$setViewValue(result);
+              ctrl.$render();
+            }
 
-                        if (noOfDecimal && tokens[1])
-                            tokens[1] = tokens[1].substring(0, noOfDecimal);
+            return actualNumber;
+          });
 
-                        var result = tokens.join(decimalDelimiter);
-                        var actualNumber = Number(tokens.join(defaultDelimiter));
+          ctrl.$formatters.push(function(value) { // model - view
+            if (!value || value === '') {
+              return null;
+            }
 
-                        if (decimalMax && actualNumber > decimalMax)
-                            ctrl.$setValidity('max', false);
+            var str = "[^0-9" + defaultDelimiter + "]";
 
-                        if (decimalMin && actualNumber < decimalMin)
-                            ctrl.$setValidity('min', false);
+            var regularExpression = new RegExp(str, 'g');
+            value = value.toString();
 
-                        // apply thousand separator
-                        if (result) {
-                            tokens = result.split($locale.NUMBER_FORMATS.DECIMAL_SEP);
-                            if (tokens[0])
-                                tokens[0] = tokens[0].split(/(?=(?:...)*$)/).join($locale.NUMBER_FORMATS.GROUP_SEP);
+            var isMinusExists = value.indexOf(minus) == 0;
+            value = value.replace(regularExpression, '');
 
-                            result = tokens.join($locale.NUMBER_FORMATS.DECIMAL_SEP);
+            var tokens = value.split(defaultDelimiter);
+            tokens.splice(2, tokens.length - 2);
 
-                            if (isMinusExists)
-                                result = minus + result;
-                        }
-                        return result;
-                    });
-                };  // end link function
-            } // end compile function
+            if (noOfDecimal && tokens[1]) {
+              tokens[1] = tokens[1].substring(0, noOfDecimal);
+            }
+
+            var result = tokens.join(decimalDelimiter);
+
+            var actualNumber = Number(tokens.join(defaultDelimiter));
+
+            if (decimalMax && actualNumber > decimalMax) {
+              ctrl.$setValidity('max', false);
+            }
+
+            if (decimalMin && actualNumber < decimalMin) {
+              ctrl.$setValidity('min', false);
+            }
+
+            // apply thousand separator
+            if (result) {
+              tokens = result.split(decimalDelimiter);
+
+              if (tokens[0]) {
+                tokens[0] = tokens[0].split(/(?=(?:...)*$)/).join(thousandsDelimiter);
+              }
+
+              result = tokens.join(decimalDelimiter);
+
+              if (isMinusExists) {
+                result = minus + result;
+              }
+            }
+
+            return result;
+          });
         };
-    }
-    ]);
-
+      }
+    };
+  }
+]);
