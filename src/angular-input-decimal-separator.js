@@ -26,7 +26,7 @@ angular.module('ng-inputdecimalseparator', [])
           }
 
           ctrl.$parsers.push(function(value) { // view - model
-            if (!value || value === '') {
+            if (!value) {
               return null;
             }
 
@@ -56,11 +56,11 @@ angular.module('ng-inputdecimalseparator', [])
             ctrl.$setValidity('max', true);
             ctrl.$setValidity('min', true);
 
-            if (decimalMax && (Number(actualNumber) > decimalMax)) {
+            if (decimalMax !== null && (Number(actualNumber) > decimalMax)) {
               ctrl.$setValidity('max', false);
             }
 
-            if (decimalMin && (Number(actualNumber) < decimalMin)) {
+            if (decimalMin !== null && (Number(actualNumber) < decimalMin)) {
               ctrl.$setValidity('min', false);
             }
 
@@ -88,7 +88,7 @@ angular.module('ng-inputdecimalseparator', [])
           });
 
           ctrl.$formatters.push(function(value) { // model - view
-            if (!value || value === '') {
+            if (!value) {
               return null;
             }
 
@@ -118,11 +118,11 @@ angular.module('ng-inputdecimalseparator', [])
             ctrl.$setValidity('max', true);
             ctrl.$setValidity('min', true);
 
-            if (decimalMax && (Number(actualNumber) > decimalMax)) {
+            if (decimalMax !== null && (Number(actualNumber) > decimalMax)) {
               ctrl.$setValidity('max', false);
             }
 
-            if (decimalMin && (Number(actualNumber) < decimalMin)) {
+            if (decimalMin !== null && (Number(actualNumber) < decimalMin)) {
               ctrl.$setValidity('min', false);
             }
             
