@@ -1,5 +1,5 @@
 angular.module('ng-inputdecimalseparator', [])
-    .directive('inputDecimalSeparator', [
+  .directive('inputDecimalSeparator', [
   '$locale',
   function($locale) {
     return {
@@ -49,14 +49,18 @@ angular.module('ng-inputdecimalseparator', [])
 
             var actualNumber = tokens.join(defaultDelimiter);
 
+            if (isMinusExists) {
+              actualNumber = minus + actualNumber;
+            }
+            
             ctrl.$setValidity('max', true);
             ctrl.$setValidity('min', true);
 
-            if (decimalMax && Number(actualNumber) > decimalMax) {
+            if (decimalMax && (Number(actualNumber) > decimalMax)) {
               ctrl.$setValidity('max', false);
             }
 
-            if (decimalMin && Number(actualNumber) < decimalMin) {
+            if (decimalMin && (Number(actualNumber) < decimalMin)) {
               ctrl.$setValidity('min', false);
             }
 
@@ -73,7 +77,6 @@ angular.module('ng-inputdecimalseparator', [])
 
             if (isMinusExists) {
               result = minus + result;
-              actualNumber = minus + actualNumber;
             }
 
             if (result != value) {
@@ -106,16 +109,23 @@ angular.module('ng-inputdecimalseparator', [])
 
             var result = tokens.join(decimalDelimiter);
 
-            var actualNumber = Number(tokens.join(defaultDelimiter));
+            var actualNumber = tokens.join(defaultDelimiter);
 
-            if (decimalMax && actualNumber > decimalMax) {
+            if (isMinusExists) {
+              actualNumber = minus + actualNumber;
+            }
+            
+            ctrl.$setValidity('max', true);
+            ctrl.$setValidity('min', true);
+
+            if (decimalMax && (Number(actualNumber) > decimalMax)) {
               ctrl.$setValidity('max', false);
             }
 
-            if (decimalMin && actualNumber < decimalMin) {
+            if (decimalMin && (Number(actualNumber) < decimalMin)) {
               ctrl.$setValidity('min', false);
             }
-
+            
             // apply thousand separator
             if (result) {
               tokens = result.split(decimalDelimiter);
