@@ -53,7 +53,7 @@ angular.module('ng-inputdecimalseparator', [])
             ctrl.$setValidity('max', true);
             ctrl.$setValidity('min', true);
 
-            if (actualNumber !== null && isNaN(actualNumber)) {
+            if (actualNumber !== null && (isNaN(actualNumber) || isNaN(actualNumber.slice(-1)))) {
               ctrl.$setValidity('nan', false);
             }
 
@@ -120,7 +120,7 @@ angular.module('ng-inputdecimalseparator', [])
             ctrl.$setValidity('max', true);
             ctrl.$setValidity('min', true);
 
-            if (actualNumber !== null && isNaN(actualNumber)) {
+            if (actualNumber !== null && (isNaN(actualNumber) || isNaN(actualNumber.slice(-1)))) {
               ctrl.$setValidity('nan', false);
             }
 
