@@ -16,33 +16,29 @@ angular.module('ng-inputdecimalseparator', [])
           var defaultDelimiter = '.';
           var decimalMax = isNaN(attrs.decimalMax) ? null : parseFloat(attrs.decimalMax);
           var decimalMin = isNaN(attrs.decimalMin) ? null : parseFloat(attrs.decimalMin);
-          var noOfDecimal = null;
+          var noOfDecimal = (!attrs.inputDecimalSeparator) ? 2 : Math.floor(Number(attrs.inputDecimalSeparator));
+          var enforceDecimal = (attrs.enforceDecimal === 'true') ? true : false;
           var minus = '-';
           var isMinusExists = false;
 
-          if (noOfDecimal || noOfDecimal != '') {
-            noOfDecimal = isNaN(attrs.inputDecimalSeparator) ? 2 : Number(attrs.inputDecimalSeparator);
-            noOfDecimal = Math.floor(noOfDecimal);
-          }
-
           ctrl.$parsers.push(function(value) { // view - model
-            if (!value) {
-              return null;
-            }
-
             var str = "[^0-9" + decimalDelimiter + "]";
 
             var regularExpression = new RegExp(str, 'g');
 
             var isMinusExists = value.indexOf(minus) == 0;
-
+            
             var outputValue = value.replace(regularExpression, '');
 
             var tokens = outputValue.split(decimalDelimiter);
             tokens.splice(2, tokens.length - 2);
 
-            if (noOfDecimal && tokens[1]) {
-              tokens[1] = tokens[1].substring(0, noOfDecimal);
+            if (noOfDecimal >= 0 && tokens[1]) {
+              if (noOfDecimal > 0) {
+                tokens[1] = tokens[1].substring(0, noOfDecimal);
+              } else {
+                tokens.splice(1, 1);
+              }
             }
 
             var result = tokens.join(decimalDelimiter);
@@ -52,15 +48,20 @@ angular.module('ng-inputdecimalseparator', [])
             if (isMinusExists) {
               actualNumber = minus + actualNumber;
             }
-            
+
+            ctrl.$setValidity('nan', true);
             ctrl.$setValidity('max', true);
             ctrl.$setValidity('min', true);
 
-            if (decimalMax !== null && (Number(actualNumber) > decimalMax)) {
+            if (actualNumber !== null && isNaN(actualNumber)) {
+              ctrl.$setValidity('nan', false);
+            }
+
+            if (decimalMax !== null && Number(actualNumber) > decimalMax) {
               ctrl.$setValidity('max', false);
             }
 
-            if (decimalMin !== null && (Number(actualNumber) < decimalMin)) {
+            if (decimalMin !== null && Number(actualNumber) < decimalMin) {
               ctrl.$setValidity('min', false);
             }
 
@@ -88,10 +89,6 @@ angular.module('ng-inputdecimalseparator', [])
           });
 
           ctrl.$formatters.push(function(value) { // model - view
-            if (!value) {
-              return null;
-            }
-
             var str = "[^0-9" + defaultDelimiter + "]";
 
             var regularExpression = new RegExp(str, 'g');
@@ -103,8 +100,12 @@ angular.module('ng-inputdecimalseparator', [])
             var tokens = value.split(defaultDelimiter);
             tokens.splice(2, tokens.length - 2);
 
-            if (noOfDecimal && tokens[1]) {
-              tokens[1] = tokens[1].substring(0, noOfDecimal);
+            if (noOfDecimal >= 0 && tokens[1] && enforceDecimal) {
+              if (noOfDecimal > 0) {
+                tokens[1] = tokens[1].substring(0, noOfDecimal);
+              } else {
+                tokens.splice(1, 1);
+              }
             }
 
             var result = tokens.join(decimalDelimiter);
@@ -115,17 +116,22 @@ angular.module('ng-inputdecimalseparator', [])
               actualNumber = minus + actualNumber;
             }
             
+            ctrl.$setValidity('nan', true);
             ctrl.$setValidity('max', true);
             ctrl.$setValidity('min', true);
 
-            if (decimalMax !== null && (Number(actualNumber) > decimalMax)) {
+            if (actualNumber !== null && isNaN(actualNumber)) {
+              ctrl.$setValidity('nan', false);
+            }
+
+            if (decimalMax !== null && Number(actualNumber) > decimalMax) {
               ctrl.$setValidity('max', false);
             }
 
-            if (decimalMin !== null && (Number(actualNumber) < decimalMin)) {
+            if (decimalMin !== null && Number(actualNumber) < decimalMin) {
               ctrl.$setValidity('min', false);
             }
-            
+
             // apply thousand separator
             if (result) {
               tokens = result.split(decimalDelimiter);
@@ -135,10 +141,15 @@ angular.module('ng-inputdecimalseparator', [])
               }
 
               result = tokens.join(decimalDelimiter);
+            }
 
-              if (isMinusExists) {
-                result = minus + result;
-              }
+            if (isMinusExists) {
+              result = minus + result;
+            }
+            
+            if (result != value && enforceDecimal) {
+              ctrl.$setViewValue(result);
+              ctrl.$render();
             }
 
             return result;
