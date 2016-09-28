@@ -20,6 +20,6 @@ How to use?
 3. input-decimal-separator="3": 3 is the number of decimal separator, 3 is optional parameter; 2 is the default decimal separator if anything is not specified.
 4. support negative number.
 5. optional delimiters tag: decimal-delimiter="," and thousands-delimiter="." if not specified $locale variables will be used.
-
+6. enforce-decimal="true": trims decimals from the model based on input-decimal-separator value; "false" as default.
 
 
