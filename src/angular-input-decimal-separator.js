@@ -89,6 +89,10 @@ angular.module('ng-inputdecimalseparator', [])
           });
 
           ctrl.$formatters.push(function(value) { // model - view
+            if (!value || value === '') {
+              return null;
+            }
+            
             var str = "[^0-9" + defaultDelimiter + "]";
 
             var regularExpression = new RegExp(str, 'g');
